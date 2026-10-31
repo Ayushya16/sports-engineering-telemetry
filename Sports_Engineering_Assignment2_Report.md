@@ -13,7 +13,7 @@
 * **Student Name 1:** AYUSHYA RAMESH OJHA  
   **ID No 1:** 2024A1PS1228P  
 * **Student Name 2:** NAVAM HARSHA  
-  **ID No 2:** 2024A51265P  
+  **ID No 2:** 2024A5PS1265P  
 
 ### Project Title
 **AI-Driven Facial Micro-Expression Telemetry and Optical Vital Sign Sensing for Real-Time Athletic Fatigue, Acute Pain, and Neurological Distress Risk Prevention**

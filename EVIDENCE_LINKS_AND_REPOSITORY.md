@@ -1,6 +1,6 @@
 # BITS Pilani Sports Engineering Assignment 2: Evidence Links & Public Repository
 
-**Authors:** AYUSHYA RAMESH OJHA (2024A1PS1228P) & NAVAM HARSHA (2024A51265P)  
+**Authors:** AYUSHYA RAMESH OJHA (2024A1PS1228P) & NAVAM HARSHA (2024A5PS1265P)  
 **Course:** Introduction to Sports Engineering | Prof. M S Dasgupta  
 
 ---

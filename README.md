@@ -17,7 +17,7 @@
 
 ### Student Authors
 1. **AYUSHYA RAMESH OJHA** &nbsp;|&nbsp; ID No: **2024A1PS1228P**
-2. **NAVAM HARSHA** &nbsp;|&nbsp; ID No: **2024A51265P**
+2. **NAVAM HARSHA** &nbsp;|&nbsp; ID No: **2024A5PS1265P**
 
 ---
 
