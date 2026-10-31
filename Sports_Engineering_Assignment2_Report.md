@@ -25,6 +25,8 @@
 * **Sport Regulating Authorities & Referees:** Objective pitch-side decision support for immediate match stoppage during concussive events and acute injury emergencies.
 * **Sport Technologists:** Integration of high-framerate broadcast computer vision with edge-computed affective computing and remote photoplethysmography (rPPG).
 
+> **Note for Evaluator:** Clickable hyperlinks are provided at the end of this report (Section 8) and right here linking to the public code repository, video evidence walkthrough, and our live pitch-side telemetry application: [Live Interactive Web Demo](https://ayushya16.github.io/sports-engineering-telemetry/). Please do click and test it for an interactive demonstration.
+
 ---
 \newpage
 
