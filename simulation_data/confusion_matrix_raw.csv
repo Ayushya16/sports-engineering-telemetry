@@ -1,0 +1,6 @@
+,Focused Baseline,Exertion Grimace,Acute Traumatic Pain,Concussive Daze,Heat / Fatigue Distress
+Focused Baseline,90,0,0,0,0
+Exertion Grimace,0,89,0,0,1
+Acute Traumatic Pain,0,1,89,0,0
+Concussive Daze,0,0,0,90,0
+Heat / Fatigue Distress,0,1,0,0,89

@@ -1,0 +1,4 @@
+Resolution,Host_CPU_FPS,RTX_4060_GPU_FPS,Jetson_Orin_Edge_FPS
+720p HD,48.2,118.0,64.0
+1080p FHD,28.5,78.4,42.1
+4K UHD,9.4,32.1,14.5

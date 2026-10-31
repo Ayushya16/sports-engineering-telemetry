@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athlete Biomedical Telemetry & Injury Risk Prevention Monitor</title>
+    <style>
+        :root {
+            --bg-dark: #090D16;
+            --panel-bg: #0F172A;
+            --panel-border: #1E293B;
+            --accent-blue: #38BDF8;
+            --accent-rose: #F43F5E;
+            --accent-emerald: #10B981;
+            --accent-amber: #F59E0B;
+            --accent-purple: #A855F7;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Top Nav Bar */
+        header {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pulse-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #22C55E;
+            box-shadow: 0 0 12px #22C55E;
+            animation: pulse-dot 1.2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        .header-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .header-meta span strong {
+            color: var(--text-main);
+        }
+
+        /* Main Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 8px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .card-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: #1E293B;
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        /* Video / Mesh Canvas Feed */
+        .viewport-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            background: #020617;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #1E293B;
+        }
+
+        canvas#faceCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .overlay-hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #38BDF8;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            pointer-events: none;
+        }
+
+        .overlay-hud-right {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #34D399;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            pointer-events: none;
+        }
+
+        /* Simulation Event Buttons */
+        .controls-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .btn-event {
+            flex: 1;
+            padding: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-normal {
+            background: #064E3B;
+            color: #A7F3D0;
+            border-color: #059669;
+        }
+        .btn-normal:hover { background: #059669; color: #FFF; }
+
+        .btn-concussion {
+            background: #78350F;
+            color: #FDE68A;
+            border-color: #D97706;
+        }
+        .btn-concussion:hover { background: #D97706; color: #FFF; }
+
+        .btn-pain {
+            background: #7F1D1D;
+            color: #FECDD3;
+            border-color: #DC2626;
+        }
+        .btn-pain:hover { background: #DC2626; color: #FFF; }
+
+        /* Telemetry Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .metric-tile {
+            background: #090D16;
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+            font-family: monospace;
+        }
+
+        /* Real-Time Graph Canvas */
+        .graph-container {
+            width: 100%;
+            height: 140px;
+            background: #020617;
+            border-radius: 6px;
+            border: 1px solid var(--panel-border);
+            position: relative;
+        }
+
+        canvas#waveCanvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Risk Level Alert Banner */
+        .alert-banner {
+            border-radius: 6px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .alert-level-0 {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid #10B981;
+            color: #34D399;
+        }
+
+        .alert-level-2 {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid #F59E0B;
+            color: #FBBF24;
+        }
+
+        .alert-level-3 {
+            background: rgba(239, 68, 68, 0.25);
+            border: 1px solid #EF4444;
+            color: #F87171;
+            animation: alert-blink 1s infinite alternate;
+        }
+
+        @keyframes alert-blink {
+            0% { background: rgba(239, 68, 68, 0.20); }
+            100% { background: rgba(239, 68, 68, 0.45); }
+        }
+
+        .gauge-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .gauge-bar {
+            flex: 1;
+            height: 12px;
+            background: #1E293B;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            width: 25%;
+            background: #10B981;
+            transition: width 0.4s ease, background 0.4s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-title">
+            <div class="pulse-indicator"></div>
+            <div>
+                <h1 style="font-size: 16px; font-weight: 800;">ATHLETE BIOMEDICAL TELEMETRY MONITOR</h1>
+                <p style="font-size: 11px; color: var(--text-muted);">BITS Pilani Sports Engineering | Live Match Feed Telemetry</p>
+            </div>
+        </div>
+        <div class="header-meta">
+            <span>ATHLETE: <strong>#10 (MID)</strong></span>
+            <span>CAMERA: <strong>PTZ-03 (4K/60FPS)</strong></span>
+            <span>MODEL: <strong>MediaPipe Mesh + POS-rPPG</strong></span>
+            <span>STATUS: <strong style="color: #34D399;">STREAMING</strong></span>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+
+        <!-- Left Column: Video Viewport & Landmark Mesh -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Live 468-Point Facial Landmark Mesh & Optical ROI</span>
+                <span class="card-badge">INFERENCE: 14.8 ms (68 FPS)</span>
+            </div>
+
+            <div class="viewport-container">
+                <canvas id="faceCanvas" width="600" height="340"></canvas>
+                <div class="overlay-hud">
+                    ROI-1 [FOREHEAD]: LOCKED<br>
+                    ROI-2 [MALAR L/R]: LOCKED<br>
+                    3D HEAD POSE: (0.4°, -1.2°, 0.8°)
+                </div>
+                <div class="overlay-hud-right" id="hudClass">
+                    STATE: FOCUSED PLAY
+                </div>
+            </div>
+
+            <!-- Simulation Controls -->
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                Interactive Scenario Injection Controls:
+            </div>
+            <div class="controls-toolbar">
+                <button class="btn-event btn-normal" onclick="setScenario('normal')">1. Normal Play (Exertion)</button>
+                <button class="btn-event btn-concussion" onclick="setScenario('concussion')">2. Head Impact (Concussion)</button>
+                <button class="btn-event btn-pain" onclick="setScenario('pain')">3. Joint Collapse (Acute Pain)</button>
+            </div>
+        </div>
+
+        <!-- Right Column: Real-Time Physiological Curves & Risk Engine -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Contactless Vital Signs & Biomechanical Telemetry</span>
+                <span class="card-badge" id="signalStatus">SNR: 18.4 dB</span>
+            </div>
+
+            <!-- Dynamic Risk Banner -->
+            <div class="alert-banner alert-level-0" id="alertBanner">
+                <div>
+                    <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Automated Risk Prevention Alert:</div>
+                    <div style="font-size: 15px;" id="alertText">LEVEL 0: SAFE ACTIVE PLAY (NO INTERVENTION)</div>
+                </div>
+                <div style="font-size: 22px; font-weight: 900;" id="mrpiValue">24 / 100</div>
+            </div>
+
+            <div class="gauge-container">
+                <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">MRPI RISK:</span>
+                <div class="gauge-bar">
+                    <div class="gauge-fill" id="gaugeFill"></div>
+                </div>
+            </div>
+
+            <!-- Metrics Tiles -->
+            <div class="metrics-grid">
+                <div class="metric-tile">
+                    <span class="metric-label">Heart Rate (rPPG)</span>
+                    <span class="metric-value" id="valHR" style="color: var(--accent-rose);">142 <span style="font-size: 12px;">BPM</span></span>
+                </div>
+                <div class="metric-tile">
+                    <span class="metric-label">Eye Aspect (EAR)</span>
+                    <span class="metric-value" id="valEAR" style="color: var(--accent-blue);">0.31</span>
+                </div>
+                <div class="metric-tile">
+                    <span class="metric-label">Mouth Aspect (MAR)</span>
+                    <span class="metric-value" id="valMAR" style="color: var(--accent-amber);">0.22</span>
+                </div>
+                <div class="metric-tile">
+                    <span class="metric-label">Facial Asymmetry</span>
+                    <span class="metric-value" id="valAsym" style="color: var(--accent-purple);">0.03</span>
+                </div>
+                <div class="metric-tile">
+                    <span class="metric-label">FACS Pain AU</span>
+                    <span class="metric-value" id="valPainAU" style="color: #F87171;">0.12</span>
+                </div>
+                <div class="metric-tile">
+                    <span class="metric-label">HRV (RMSSD)</span>
+                    <span class="metric-value" id="valHRV" style="color: var(--accent-emerald);">42 <span style="font-size: 12px;">ms</span></span>
+                </div>
+            </div>
+
+            <!-- Real-Time Optical Pulse Waveform Canvas -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                    Optical Chrominance Pulse Waveform (POS BVP Bandpass):
+                </span>
+                <span style="font-size: 11px; color: #34D399;">LIVE (Welch FFT Locked)</span>
+            </div>
+            <div class="graph-container">
+                <canvas id="waveCanvas" width="540" height="130"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Live Simulation Engine Script -->
+    <script>
+        const faceCanvas = document.getElementById('faceCanvas');
+        const ctxFace = faceCanvas.getContext('2d');
+        const waveCanvas = document.getElementById('waveCanvas');
+        const ctxWave = waveCanvas.getContext('2d');
+
+        let currentScenario = 'normal'; // 'normal', 'concussion', 'pain'
+        let t = 0;
+        let waveHistory = new Array(180).fill(65);
+
+        function setScenario(sc) {
+            currentScenario = sc;
+            const banner = document.getElementById('alertBanner');
+            const alertText = document.getElementById('alertText');
+            const hudClass = document.getElementById('hudClass');
+
+            if (sc === 'normal') {
+                banner.className = 'alert-banner alert-level-0';
+                alertText.innerText = 'LEVEL 0: SAFE ACTIVE PLAY (NO INTERVENTION)';
+                hudClass.innerText = 'STATE: NORMAL PLAY (EXERTION)';
+                hudClass.style.color = '#34D399';
+            } else if (sc === 'concussion') {
+                banner.className = 'alert-banner alert-level-2';
+                alertText.innerText = 'LEVEL 2: CONCUSSION / ASYMMETRY TIMEOUT ALERT';
+                hudClass.innerText = 'STATE: CONCUSSIVE AFFECTIVE BLUNTING';
+                hudClass.style.color = '#FBBF24';
+            } else if (sc === 'pain') {
+                banner.className = 'alert-banner alert-level-3';
+                alertText.innerText = 'LEVEL 3: CRITICAL INJURY EMERGENCY - MATCH STOPPAGE';
+                hudClass.innerText = 'STATE: ACUTE NOCICEPTIVE PAIN';
+                hudClass.style.color = '#F87171';
+            }
+        }
+
+        function updateTelemetry() {
+            t += 0.08;
+
+            let hr, ear, mar, asym, painAU, hrv, mrpi;
+
+            if (currentScenario === 'normal') {
+                hr = 155 + Math.sin(t * 0.8) * 8 + (Math.random() - 0.5) * 3;
+                ear = 0.28 + Math.sin(t * 0.5) * 0.03;
+                mar = 0.45 + Math.sin(t * 0.4) * 0.06;
+                asym = 0.035 + (Math.random() - 0.5) * 0.008;
+                painAU = 0.25 + Math.sin(t * 0.3) * 0.05;
+                hrv = 38 + (Math.random() - 0.5) * 4;
+                mrpi = 24 + Math.sin(t * 0.5) * 4;
+            } else if (currentScenario === 'concussion') {
+                hr = 148 + (Math.random() - 0.5) * 4;
+                ear = 0.38 + (Math.random() - 0.5) * 0.015; // Vacant stare
+                mar = 0.28 + (Math.random() - 0.5) * 0.01;
+                asym = 0.26 + Math.sin(t * 0.3) * 0.02; // Asymmetry spike
+                painAU = 0.12 + (Math.random() - 0.5) * 0.02;
+                hrv = 28 + (Math.random() - 0.5) * 3;
+                mrpi = 68 + Math.sin(t * 0.4) * 3;
+            } else { // acute pain
+                hr = 188 + (Math.random() - 0.5) * 5;
+                ear = 0.14 + (Math.random() - 0.5) * 0.01; // Squint blepharospasm
+                mar = 0.78 + (Math.random() - 0.5) * 0.03; // Open crying/screaming
+                asym = 0.11 + (Math.random() - 0.5) * 0.015;
+                painAU = 0.94 + (Math.random() - 0.5) * 0.02;
+                hrv = 12 + (Math.random() - 0.5) * 2;
+                mrpi = 88 + Math.sin(t * 0.3) * 3;
+            }
+
+            // Update UI elements
+            document.getElementById('valHR').innerHTML = `${Math.round(hr)} <span style="font-size: 12px;">BPM</span>`;
+            document.getElementById('valEAR').innerText = ear.toFixed(2);
+            document.getElementById('valMAR').innerText = mar.toFixed(2);
+            document.getElementById('valAsym').innerText = asym.toFixed(3);
+            document.getElementById('valPainAU').innerText = painAU.toFixed(2);
+            document.getElementById('valHRV').innerHTML = `${Math.round(hrv)} <span style="font-size: 12px;">ms</span>`;
+            document.getElementById('mrpiValue').innerText = `${Math.round(mrpi)} / 100`;
+
+            const fill = document.getElementById('gaugeFill');
+            fill.style.width = `${Math.min(100, Math.max(5, mrpi))}%`;
+            fill.style.background = mrpi >= 80 ? '#DC2626' : (mrpi >= 60 ? '#EA580C' : (mrpi >= 35 ? '#D97706' : '#10B981'));
+
+            // Draw Synthetic Face Mesh
+            drawFaceMesh(ear, mar, asym, painAU);
+
+            // Draw Optical BVP Pulse
+            drawBVPWave(hr);
+
+            requestAnimationFrame(updateTelemetry);
+        }
+
+        function drawFaceMesh(ear, mar, asym, painAU) {
+            ctxFace.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
+
+            const cx = faceCanvas.width / 2;
+            const cy = faceCanvas.height / 2 + 10;
+            const headW = 100;
+            const headH = 135;
+
+            // Head silhouette
+            ctxFace.strokeStyle = '#1E293B';
+            ctxFace.lineWidth = 1.5;
+            ctxFace.beginPath();
+            ctxFace.ellipse(cx, cy, headW, headH, 0, 0, Math.PI * 2);
+            ctxFace.stroke();
+
+            // Forehead rPPG ROI Box
+            ctxFace.strokeStyle = '#059669';
+            ctxFace.fillStyle = 'rgba(16, 185, 129, 0.12)';
+            ctxFace.lineWidth = 1.2;
+            ctxFace.strokeRect(cx - 45, cy - 85, 90, 32);
+            ctxFace.fillRect(cx - 45, cy - 85, 90, 32);
+
+            // Malar Cheek ROI Boxes
+            ctxFace.strokeRect(cx - 75, cy - 10, 35, 30);
+            ctxFace.fillRect(cx - 75, cy - 10, 35, 30);
+            ctxFace.strokeRect(cx + 40, cy - 10, 35, 30);
+            ctxFace.fillRect(cx + 40, cy - 10, 35, 30);
+
+            // Eyeballs & eyelids based on EAR
+            const eyeH = 18 * (ear / 0.32);
+            ctxFace.strokeStyle = '#38BDF8';
+            ctxFace.fillStyle = '#0284C7';
+            // Left eye
+            ctxFace.beginPath();
+            ctxFace.ellipse(cx - 42, cy - 25, 18, eyeH, 0, 0, Math.PI * 2);
+            ctxFace.stroke();
+            // Right eye (with asymmetry effect)
+            const rightEyeH = currentScenario === 'concussion' ? eyeH * 1.3 : eyeH;
+            ctxFace.beginPath();
+            ctxFace.ellipse(cx + 42, cy - 25 + (asym * 40), 18, rightEyeH, 0, 0, Math.PI * 2);
+            ctxFace.stroke();
+
+            // Brows based on AU4 (Pain/Exertion furrow)
+            ctxFace.strokeStyle = painAU > 0.6 ? '#EF4444' : '#94A3B8';
+            ctxFace.lineWidth = 2.5;
+            const browDrop = painAU * 14;
+            // Left brow
+            ctxFace.beginPath();
+            ctxFace.moveTo(cx - 65, cy - 45 + browDrop * 0.5);
+            ctxFace.lineTo(cx - 15, cy - 45 + browDrop);
+            ctxFace.stroke();
+            // Right brow
+            ctxFace.beginPath();
+            ctxFace.moveTo(cx + 65, cy - 45 + browDrop * 0.5 - (asym * 30));
+            ctxFace.lineTo(cx + 15, cy - 45 + browDrop);
+            ctxFace.stroke();
+
+            // Mouth based on MAR
+            const mouthH = 35 * (mar / 0.5);
+            ctxFace.strokeStyle = mar > 0.6 ? '#F59E0B' : '#64748B';
+            ctxFace.fillStyle = 'rgba(245, 158, 11, 0.15)';
+            ctxFace.lineWidth = 2.0;
+            ctxFace.beginPath();
+            ctxFace.ellipse(cx, cy + 55, 32, mouthH / 2, 0, 0, Math.PI * 2);
+            ctxFace.stroke();
+            ctxFace.fill();
+
+            // Dense Mesh Landmark Dots (468 points simulation)
+            ctxFace.fillStyle = '#0284C7';
+            for (let i = -4; i <= 4; i++) {
+                for (let j = -5; j <= 5; j++) {
+                    const px = cx + i * 20 + Math.sin(t + i) * 2;
+                    const py = cy + j * 20 + Math.cos(t + j) * 2;
+                    if (Math.hypot(px - cx, py - cy) < headW - 5) {
+                        ctxFace.fillRect(px, py, 2, 2);
+                    }
+                }
+            }
+        }
+
+        function drawBVPWave(hr) {
+            ctxWave.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+
+            // Shift wave left
+            const freq = (hr / 60) * 0.25;
+            const newPoint = 65 + Math.sin(t * freq * 10) * 28 + Math.sin(t * freq * 20) * 12 + (Math.random() - 0.5) * 3;
+            waveHistory.push(newPoint);
+            waveHistory.shift();
+
+            // Draw grid lines
+            ctxWave.strokeStyle = '#0F172A';
+            ctxWave.lineWidth = 1.0;
+            for (let x = 0; x < waveCanvas.width; x += 30) {
+                ctxWave.beginPath(); ctxWave.moveTo(x, 0); ctxWave.lineTo(x, waveCanvas.height); ctxWave.stroke();
+            }
+            for (let y = 0; y < waveCanvas.height; y += 25) {
+                ctxWave.beginPath(); ctxWave.moveTo(0, y); ctxWave.lineTo(waveCanvas.width, y); ctxWave.stroke();
+            }
+
+            // Draw ECG/rPPG line
+            ctxWave.strokeStyle = hr > 180 ? '#F43F5E' : '#34D399';
+            ctxWave.lineWidth = 2.0;
+            ctxWave.beginPath();
+            const step = waveCanvas.width / waveHistory.length;
+
+            for (let i = 0; i < waveHistory.length; i++) {
+                const x = i * step;
+                const y = waveHistory[i];
+                if (i === 0) ctxWave.moveTo(x, y);
+                else ctxWave.lineTo(x, y);
+            }
+            ctxWave.stroke();
+        }
+
+        // Initialize simulation loop
+        updateTelemetry();
+    </script>
+</body>
+</html>
