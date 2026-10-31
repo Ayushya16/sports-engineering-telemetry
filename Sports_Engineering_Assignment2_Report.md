@@ -355,6 +355,12 @@ class AthleticRiskControlFSM:
             return {"alert": "GREEN_CLEAR", "action": "CONTINUE_PLAY"}
 ```
 
-### 8.3 Public Code Repository & Video Evidence Link
-* **Reproducible Python Source Code:** Fully functional in workspace root as [`simulation_pipeline.py`](file:///c:/Users/Ayushya/intse/simulation_pipeline.py).
-* **Hosted Cloud Repository & Video Demonstration:** [GitHub Code & Demo Video Repository Link](https://github.com/sports-eng-bits/athlete-facial-biomedical-monitoring) *(Hosted demonstration showing live webcam facial tracking, rPPG pulse curve, and real-time MRPI alert HUD)*.
+### 8.3 Public Code Repository & Working Evidence Links
+* **Public GitHub Repository:** [https://github.com/Ayushya16/sports-engineering-telemetry](https://github.com/Ayushya16/sports-engineering-telemetry)
+* **Live Interactive Telemetry HUD (Web Application):** [https://ayushya16.github.io/sports-engineering-telemetry/](https://ayushya16.github.io/sports-engineering-telemetry/)
+* **Hosted Video Evidence Demo:** [Video Demonstration on GitHub](https://github.com/Ayushya16/sports-engineering-telemetry#video-and-live-telemetry-demonstration)
+* **Full Academic Report:** [Sports_Engineering_Assignment2_Report.md](https://github.com/Ayushya16/sports-engineering-telemetry/blob/main/Sports_Engineering_Assignment2_Report.md)
+* **Python Simulation Code & ML Pipeline:** [simulation_pipeline.py](https://github.com/Ayushya16/sports-engineering-telemetry/blob/main/simulation_pipeline.py)
+* **Empirical CSV Datasets:** [simulation_data/](https://github.com/Ayushya16/sports-engineering-telemetry/tree/main/simulation_data)
+
+> **Note:** All blue and underlined text is clickable links for your reference. Please do go through them.
